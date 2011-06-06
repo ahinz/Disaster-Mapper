@@ -1,0 +1,98 @@
+.infobox {
+    background-color: #EBEBEB;
+    width: 900px;
+    clear: both;
+    display: block;
+    height: 250px;
+    padding: 10px;
+    margin: 10px;
+
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -khtml-border-radius: 10px;
+    border-radius: 10px;
+
+    border-style: solid;
+    border-color: black;
+    border-width: 1px;
+}
+
+tr {
+    background-color: white;
+}
+
+.main {
+    background-color: #E9F1F4;
+    height: 700px;
+    -moz-box-shadow: 5px 5px 5px #888;
+    -webkit-box-shadow: 5px 5px 5px #888;
+    box-shadow: 5px 5px 5px #888;
+}
+
+.center {
+    text-align: center;
+}
+
+.border-right {
+    border-style: solid;
+    border-width: 0px 1px 0px 0px;
+}
+
+.content {
+    display: none;
+}
+
+h1 {
+    text-align: center;
+}
+
+.col {
+    padding: 20px;
+}
+
+.hideme {
+    display: none;
+}
+
+.collapse {
+    height: 15px;
+    overflow: hidden;
+}
+
+.col h2 {
+    text-align: center;
+    color: #BBB7BB;
+}
+
+.header h2 {
+    color: white;
+    width: 800px;
+}
+
+.spinner {
+}
+
+.header {
+    background-color: #003E9F;
+    color: white;
+
+    width: 900px;
+    height: 40px;
+
+    -moz-border-top-left-radius: 10px;
+    -moz-border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    margin: -10px;
+    padding: 0px 10px 0px 10px;
+}
+
+input {
+    text-align: center;
+}
+
+map {
+    width: 30%;
+    height: 200px;
+    float: right;
+}

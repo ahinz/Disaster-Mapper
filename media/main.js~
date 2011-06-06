@@ -1,0 +1,176 @@
+var map = null;
+var map2 = null;
+
+function spawn_map(elmt) {
+      var latlng = new google.maps.LatLng(39.953333, -75.17);
+    var myOptions = {
+      zoom: 8,
+      center: latlng,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+
+    var map = new google.maps.Map(document.getElementById(elmt),
+        myOptions);
+
+    return map;
+}
+
+ 
+  function initialize() {
+      map = spawn_map("map_canvas");
+      flood_map = spawn_map("flood_map");
+      torn_map = spawn_map("torn_map");
+      epa_map = spawn_map("epa_map");
+      hur_path = spawn_map("hur_map");
+  }
+
+  $(function() {
+      initialize();
+      
+      var address = $.url().param("address");
+	  /*
+	  $.ajax({
+	      url: "http://localhost:4567/earthquakes/area",
+	      dataType: 'jsonp',
+	      data: {
+		  lat_min: 37.959409,
+		  lat_max: 42.195969,
+		  lon_min: -81.430664,
+		  lon_max: -72.168945
+	      },
+	      success: function(json) {
+		  $.map(json, function( eq_square ) {
+		      lat = eq_square.lat;
+		      lon = eq_square.lon;
+
+		      var ll1 = new google.maps.LatLng(lat,lon)
+		      var ll2 = new google.maps.LatLng(lat + 0.05,lon)
+		      var ll3 = new google.maps.LatLng(lat + 0.05,lon + 0.05)
+		      var ll4 = new google.maps.LatLng(lat,lon + 0.05)		     
+
+		      var color = "#0000" + (255.0 * eq_square.val / eq_square.max).toString(16)
+
+		      new google.maps.Polygon({
+			  paths: [ll1,ll2,ll3,ll4], 
+			  strokeColor: color,
+			  strokeOpacity: 0.0,
+			  strokeWeight: 2,
+			  fillColor: color,
+			  fillOpacity: 0.2,
+			  map: map
+		      });
+
+		  });
+	      }
+	  });
+*/
+	  $.ajax({
+	      url: "http://localhost:4567/hurricanes",
+	      dataType: 'jsonp',
+	      data: {
+		  address: address
+	      },
+	      success: function(json) {
+		  $.map(json, function( hurricane ) {
+		      var path = $.map(hurricane.path, function( ll ) {
+			  var lls = ll.split(",");
+			  return new google.maps.LatLng(lls[0],lls[1]);
+		      });
+
+		      new google.maps.Polyline({
+			  strokeColor: '#00ff00',
+			  strokeOpacity: 1.0,
+			  strokeWeight: 3,
+			  map: map,
+			  path: path
+		      });
+
+		  });
+	      }
+	  });
+
+	  $.ajax({
+	      url: "http://localhost:4567/tornados",
+	      dataType: 'jsonp',
+	      data: {
+		  address: address
+	      },
+	      success: function(json) {
+		  $.map(json, function( ll ) {
+		      var myLatLng = new google.maps.LatLng(ll.lat,ll.lon);
+		      var marker = new google.maps.Marker({
+			  position: myLatLng, 
+			  map: map, 
+			  icon: "http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png",
+			  title: "Nuclear Power Plant: " + json.title + "(" + json.type + ")"
+		      });  
+		  });
+	      }
+	  });
+		      
+	  $.ajax({
+	      url: "http://localhost:4567/flood",
+	      dataType: 'jsonp',
+	      data: {
+		  address: address
+	      },
+	      success: function(json) {
+		  $.map(json.geo, function( polygon ) {
+		      var gmap = $.map(polygon, function( ar ) {
+			  var pts = ar.split(" ")
+			  return new google.maps.LatLng(pts[1],pts[0]);
+		      });
+
+		      new google.maps.Polygon({
+			  paths: gmap, 
+			  strokeColor: "#FF0000",
+			  strokeOpacity: 0.8,
+			  strokeWeight: 2,
+			  fillColor: "#FF0000",
+			  fillOpacity: 0.35,
+			  map: map2
+		      });
+		  });
+	      }
+	  });
+
+
+	  $.ajax({
+	      url: "http://localhost:4567/epa",
+	      dataType: 'jsonp',
+	      data: {
+		  address: address
+	      },
+	      success: function(json) {
+		  $.map(json, function( epa ) {
+		      var myLatLng = new google.maps.LatLng(epa.lat,epa.lon);
+		      var marker = new google.maps.Marker({
+			  position: myLatLng, 
+			  map: map, 
+			  title: "Nuclear Power Plant: " + json.title + "(" + json.type + ")",
+			  icon: "http://www.google.com/intl/en_us/mapfiles/ms/micons/green-dot.png"
+		      });  
+//
+		  });
+	      }
+	  });
+
+	  $.ajax({
+	      url: "http://localhost:4567/hazards",
+	      dataType: 'jsonp',
+	      data: {
+		  address: address
+	      },
+	      success: function(json) {
+		  $.map(json, function( powerplant ) {
+		      var myLatLng = new google.maps.LatLng(powerplant.lat,powerplant.lon);
+		      var marker = new google.maps.Marker({
+			  position: myLatLng, 
+			  map: map, 
+			  title: "Nuclear Power Plant: " + json.title + "(" + json.type + ")"
+		      });  
+//
+		  });
+	      }
+	  });
+  });
