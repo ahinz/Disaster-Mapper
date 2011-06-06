@@ -130,7 +130,7 @@ $(function() {
       nuke_map = spawn_map("nuke_map",center,7);
   }
 
-  URL = "http://adamhinz.com:4567/"
+  URL = "http://api.adamhinz.com/"
 
 function create_content() {
     build_content_div("nuke_content","Nuclear Reactors","nuke_map");
@@ -199,7 +199,7 @@ function create_content() {
 	  });
 */
 	  $.ajax({
-	      url: "http://adamhinz.com:4567/hurricanes",
+	      url: URL + "hurricanes",
 	      dataType: 'jsonp',
 	      data: {
 		  address: address
@@ -225,7 +225,7 @@ function create_content() {
 	  });
 
 	  $.ajax({
-	      url: "http://adamhinz.com:4567/tornados",
+	      url: URL + "tornados",
 	      dataType: 'jsonp',
 	      data: {
 		  address: address
@@ -246,7 +246,7 @@ function create_content() {
 	  });
 		      
 	  $.ajax({
-	      url: "http://adamhinz.com:4567/flood",
+	      url: URL + "flood",
 	      dataType: 'jsonp',
 	      data: {
 		  address: address
@@ -275,7 +275,7 @@ function create_content() {
 
 
 	  $.ajax({
-	      url: "http://adamhinz.com:4567/epa",
+	      url: URL + "epa",
 	      dataType: 'jsonp',
 	      data: {
 		  address: address
@@ -297,7 +297,7 @@ function create_content() {
 	  });
 
 	  $.ajax({
-	      url: "http://adamhinz.com:4567/hazards",
+	      url: URL + "hazards",
 	      dataType: 'jsonp',
 	      data: {
 		  address: address
