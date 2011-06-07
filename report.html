@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<link rel="stylesheet" href="http://www.blueprintcss.org/blueprint/screen.css" type="text/css" media="screen, projection"> 
+<link rel="stylesheet" href="media/main.css" type="text/css">
+<style type="text/css">
+  html { height: 100% }
+  body { height: 100%; margin: 0px; padding: 0px }
+  #map_canvas { height: 100% }
+</style>
+<script type="text/javascript"
+    src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"  type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" src="jquery.url.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js" type="text/javascript" charset="utf-8"></script> 
+<script type="text/javascript" src="media/pubsub.js"></script>
+<script type="text/javascript" src="media/main.js"></script>
+</head>
+<!-- <body onload="initialize()"> -->
+<body style="height: 100%">
+  <div id="flood_content" class="content">
+    <p>You are in <strong>Flood Zone 1A</strong> - this means that there will be a flood every 100 years that will sink your house like a boat.
+    </p>
+    <p>More info about flooding risks can be found at:</p>
+    <ul>
+      <li><a href="#">FEMA Gov</a></li>
+      <li><a href="#">Federal Flood Insurance</a></li>
+      <li><a href="#">Philadelphia Flood Watch</a></li>
+    </ul>
+  </div>
+  
+  <div id="nuke_content" class="content">
+    <p class="replace">There are _num_ nuclear powerplants within _radius_.</p>
+    <table style="width: 90%">
+      <tr><td>Powerplant Name</td><td>Latitude</td><td>Longitude</td></tr>
+    </table>
+    <p>
+Though Nuclear Reactors have many safeguards, it is still very important to protect yourself against a potential emergency.  An emergency at a nuclear facility may include an explosion or leak Radioactive material can contaminate the air, water and ground surfaces for miles around. During a nuclear incident, it is important to avoid radioactive material, if possible.  As with any radiation, you want to try to limit exposure. It is important to avoid breathing radiological dust that may be released in the air.  For more information on how to prepare for an incident, visit the <a href="http://oem.readyphiladelphia.org/RelId/607367/ISvars/default/Radiation_Exposure.htm">radiation page at ReadyPhiladelphia.org</a>.
+    </p>
+  </div>
+
+  <div id="torn_content" class="content">
+    <p class="replace">_num_ tornados touched down within _radius_ in the last year.</p>
+    <table style="width: 90%">
+      <tr><td>Date</td><td>F-Scale</td><td>Est. Loss</td><td>Latitude</td><td>Longitude</td></tr>
+    </table>
+    <p>
+Tornadoes are nature's most violent storms. They can appear suddenly without warning and can be invisible until dust and debris are picked up or a funnel cloud appears. Planning and practicing specifically how and where you take shelter is a matter of survival. Be prepared to act quickly.  For more information on how to prepare for them, visit the <a href="http://oem.readyphiladelphia.org/RelId/607373/articlepage/6/isvars/default/severe_weather.htm">tornado page at ReadyPhiladelphia.org</a>.
+    </p>
+  </div>
+
+  <div id="epa_content" class="content">
+    <p class="replace">_num_ EPA tracked facilities were found within _radius_</p>
+    <table>
+      <tr><td>Name</td><td>Code</td><td>Latitude</td><td>Longitude</td></tr>
+    </table>
+    <a href="javascript:$.publish('/show/epa');" id="show_epa"></a>
+    <p>
+      There are many facilities ranging from chemical plants to local auto repair shops that handle hazardous materials on a daily basis.  Some of these facilities may also be authorized to release products into the air or water.  In addition to the potential for a hazardous material accident causing a release into the environment, an explosion or fire may also be present.  It’s important to know the materials that may be stored or transported around your location.  For more information on how to prepare for an incident, visit the hazardous materials page at ReadyPhiladelphia.org.
+    </p>
+  </div>
+
+  <div id="hur_content" class="content">
+    <p>8 hurricanes have passed within 100 miles of this address</p>
+  </div>
+
+  <div id="quake_content" class="content">
+    <h2>Earthquakes</h2>
+    <p>Based on USGS Gov't data you have a 0.9% change of a being in a significant earthquake in the next 50 years</p>
+  </div>
+
+  <div class="container mainrpt">
+    <br />
+    <div class="span-24">
+      <h1>Disaster Mapper</h1>
+    </div>
+    <div id="infoboxes" class="infoboxes span-24 full"></div>
+</body>
+</html>

@@ -28,23 +28,31 @@ function build_content_div(contentp,header,map_id) {
 	'<div class="header"><div style="float:left"><h2>' + header + '</h2></div><div class="spinner" style="float:right;"><img id="img-spinner" src="media/spinner.gif" alt="Loading"/></div></div>' +
 	'<div style="width:70%; float: left">' + content_html + '</div>' +
 	'<div id="' + map_id + '" style="width:30%; height:200px; float: right"></div>' +
+	    '<div style="clear: both"></div>' +  
 	'</div>'
     } else {
 	infobox_tmpl =
 	'<div class="infobox collapse" id="' + contentp + '">' +
 	'<div class="header"><h2>' + header + '</h2><img id="img-spinner" src="media/spinner.gif" alt="Loading"/></div>' +
 	'<div style="width:100%; float: left">' + content_html + '</div>' +
+	'<div style="clear:both"></div>' +
 	'</div>'
     }	
+
+    infobox_tmpl = infobox_tmpl + '<div style="clear:both"></div>';
 	
     $.subscribe("/update/" + contentp, function( event ) {
 	$("#" + contentp + " .spinner").remove();
-	$("#" + contentp).animate({
+	$("#" + contentp).removeClass("collapse");
+/*	$("#" + contentp).animate({
 	    height: '100%'
-	}, 1000);
+	}, 1000);*/
+	$(".main").removeClass("height");
+/*
 	$(".main").animate({
 	    height: parseInt($(".main").css('height')) + 270 + "px"
 	}, 500);
+*/
     });
 
     content.remove();
