@@ -8,6 +8,11 @@ require 'csv'
 require 'json'
 
 include Geokit::Geocoders
+require  'sqlite3'
+
+def sql_con()
+  @@sql_con ||= SQLite3::Database.new( "devdb.db" )
+end
 
 def philly_flood(lat,lon)
   factory = RGeo::Cartesian.factory
@@ -40,7 +45,7 @@ def bootstrap_quake_file(file)
   end.max
 end
 
-@@max_quake_value = bootstrap_quake_file("2008.US.10hz.10pc50.txt")
+@@max_quake_value = 2.3 #= bootstrap_quake_file("2008.US.10hz.10pc50.txt")
 puts "==== Found max quake value: " + @@max_quake_value.to_s
 
 def quake_area(file, lat_min, lon_min, lat_max, lon_max,max_quake_value)
@@ -70,68 +75,64 @@ def quake_file(file, lat_tgt, lon_tgt)
   end
 end
 
-def epa_locs(file, lat, lon, dist_miles)
-  epas = []
-  ll = GeoKit::LatLng.new(lat.to_f, lon.to_f)
 
-  CSV.foreach(file) do |row|
-    if (row.length >= 13 && row[12] != nil && row[13] != nil)
-      lat = row[12].to_f
-      lon = row[13].to_f
-      dist = GeoKit::LatLng.new(lat,lon).distance_from(ll, :units => :miles)
+# These are maximums
+def calc_lat_delta(dist_miles)
+  dist_miles / 70.0
+end
 
-      code = ""
-      code += row[10] if row[10]
-      code += " " + row[11] if row[11]
+def calc_lon_delta(dist_miles)
+  dist_miles / 70.0
+end
 
-      epas << { 
-        "lat" => lat, 
-        "lon" => lon, 
-        "dist" => dist,
-        "code" => code,
-        "url" => row[0],
-        "name" => row[1]
-      } if dist && dist < dist_miles
+def gen_gis_where_clause(lat, lon, dist_miles)
+  lat_d = calc_lat_delta(dist_miles)
+  lon_d = calc_lon_delta(dist_miles)
+
+  "lat <= #{lat + lat_d} AND lat >= #{lat - lat_d} AND lon <= #{lon + lon_d} AND lon >= #{lon - lon_d}"
+end
+
+def dist?(lat, lon, ll, dist_miles)
+
+end
+
+def exec_bounded_query(stmt, lat, lon, ll, dist_miles)
+  puts "exec: " + stmt
+  cols = nil
+  values = []
+  sql_con().execute2(stmt) do |row|
+    if (cols == nil)
+      cols = row
+    else
+      hash = cols.zip(row).inject(Hash.new) { |hash, (k,v)| hash[k] = v; hash }
+      dist = GeoKit::LatLng.new(lat, lon).distance_from(ll, :units => :miles)
+      if (dist <= dist_miles)
+        values << hash.merge({"dist" => dist })
+      end
     end
   end
 
-  epas.sort do |hash1|
-    hash1["dist"]
-  end
+  values
 end
 
 def read_nukes(file, lat, lon, dist_miles)
-  nukes = []
   ll = GeoKit::LatLng.new(lat.to_f, lon.to_f)
+  stmt = "select * from nukes where " + gen_gis_where_clause(lat, lon, dist_miles)
 
-  File.open(file) do |file|
-    file.lines.each do |line|
-      parts = line.split(";")
-      nukes << { "lat" => parts[1], "lon" => parts[0], "name" => parts[2] } if GeoKit::LatLng.new(parts[1], parts[0]).distance_from(ll, :units => :miles) < dist_miles
-    end
-  end
-
-  nukes
+  exec_bounded_query(stmt, lat, lon, ll, dist_miles)
 end
 
-def read_tornado_file(file, lat, lon, dist_miles)
-  tornados = []
+def epa_locs(file, lat, lon, dist_miles)
   ll = GeoKit::LatLng.new(lat.to_f, lon.to_f)
 
-  File.open(file) do |file|
-    file.lines.each do |line|
-      parts = line.split(",")
-      tornados << { 
-        "lat" => parts[15], 
-        "lon" => parts[16],
-        "f" => parts[10],
-        "loss" => parts[13],
-        "date" => parts[4]
-      } if GeoKit::LatLng.new(parts[15], parts[16]).distance_from(ll, :units => :miles) < dist_miles
-    end
-  end
+  exec_bounded_query("select * from epa where " + gen_gis_where_clause(lat, lon, dist_miles), lat, lon, ll, dist_miles)
+end
 
-  tornados
+
+def read_tornado_file(file, lat, lon, dist_miles)
+  ll = GeoKit::LatLng.new(lat.to_f, lon.to_f)
+
+  exec_bounded_query("select * from torn where " + gen_gis_where_clause(lat, lon, dist_miles), lat, lon, ll, dist_miles)
 end
 
 get '/geocode' do

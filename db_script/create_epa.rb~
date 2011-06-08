@@ -1,0 +1,26 @@
+if (ARGV.length < 2 || ARGV.length > 3)
+  puts "Usage: create_epa.rb dbname epa_file [--append]"
+end
+
+
+
+  CSV.foreach(file) do |row|
+    if (row.length >= 13 && row[12] != nil && row[13] != nil)
+      lat = row[12].to_f
+      lon = row[13].to_f
+      dist = GeoKit::LatLng.new(lat,lon).distance_from(ll, :units => :miles)
+
+      code = ""
+      code += row[10] if row[10]
+      code += " " + row[11] if row[11]
+
+      epas << { 
+        "lat" => lat, 
+        "lon" => lon, 
+        "dist" => dist,
+        "code" => code,
+        "url" => row[0],
+        "name" => row[1]
+      } if dist && dist < dist_miles
+    end
+  end
