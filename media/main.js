@@ -44,15 +44,7 @@ function build_content_div(contentp,header,map_id) {
     $.subscribe("/update/" + contentp, function( event ) {
 	$("#" + contentp + " .spinner").remove();
 	$("#" + contentp).removeClass("collapse");
-/*	$("#" + contentp).animate({
-	    height: '100%'
-	}, 1000);*/
 	$(".main").removeClass("height");
-/*
-	$(".main").animate({
-	    height: parseInt($(".main").css('height')) + 270 + "px"
-	}, 500);
-*/
     });
 
     content.remove();
@@ -94,6 +86,12 @@ $(function() {
 		       "<td>" + torn.lon + "</td></tr>");
 	});
     });
+
+    $.subscribe("/update/flood_content", function( content ) {
+	var jq = $("#flood_content .replace");
+	jq.html(jq.html().replace("_zone_", content.attr.FLD_ZONE));
+    });
+
     $.subscribe("/update/epa_content", function( content ) {
 	var jq = $("#epa_content .replace");
 	jq.html(jq.html().replace("_num_", content.length).replace("_radius_","3/4 miles"));

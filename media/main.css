@@ -28,9 +28,14 @@ tr {
     background-color: white;
 }
 
+.byline {
+    margin-top: 50px;
+    text-align: center;
+}
+
 .main {
+    margin-bottom: 10px;
     background-color: #E9F1F4;
-    height: 700px;
     -moz-box-shadow: 5px 5px 5px #888;
     -webkit-box-shadow: 5px 5px 5px #888;
     box-shadow: 5px 5px 5px #888;
