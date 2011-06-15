@@ -14,7 +14,8 @@ end
 db.execute("create table flood (id INTEGER PRIMARY KEY, FLD_AR_ID TEXT, FLD_ZONE TEXT, FLOODWAY TEXT, SFHA_TF TEXT, V_DATUM TEXT, LEN_UNIT TEXT, AR_REVERT TEXT, SOSURCE_CIT TEXT, HYDRO_ID TEXT, CST_MDL_ID TEXT, BFE_REVERT TEXT, DEP_REVERT TEXT, DEPTH TEXT, VELOCITY TEXT, STATIC_BFE TEXT, lat_min REAL, lat_max REAL, lon_min REAL, lon_max REAL)")
 db.execute("create table flood_gis(id INTEGER PRIMARY KEY, flood_id INTEGER, shape_id INTEGER, lat REAL, lon REAL)")
 
-RGeo::Shapefile::Reader.open('A-GIS/FloodZones/s_fld_haz_ar_reprojected.shp') do |file|
+puts "Reading file #{ARGV[1]}"
+RGeo::Shapefile::Reader.open(ARGV[1].dup) do |file|
     geom_offset = 1
 
     file.each do |record|
