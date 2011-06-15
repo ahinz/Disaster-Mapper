@@ -21,7 +21,8 @@ def philly_flood(lat,lon)
 
   RGeo::Shapefile::Reader.open('A-GIS/FloodZones/s_fld_haz_ar_reprojected.shp') do |file|
     file.each do |record|
-      if (record.geometry.contains?(p1))
+	return record.attributes      
+if (record.geometry.contains?(p1))
         pts = JSON.parse(record.geometry.as_text.gsub("(","[").gsub(")","]").gsub(/(-\d+\.\d+\s+\d+\.\d+)/, "\"\\1\"")[14..-2])
         return { "attr" => record.attributes, "geo" => pts } #record.geometry.as_text.gsub("(","[").gsub(")","]").split(",").map { |x| x.split(" ") }[1..-2] }
       end
@@ -146,6 +147,9 @@ end
 
 def lat_lon_from_params(params)
   if (params[:lat] == nil || params[:lon] == nil)
+	puts "Failed to find lat/lon"
+	require 'pp'
+	pp params
     address = params[:address]
     res = MultiGeocoder.geocode(address)
 
@@ -169,7 +173,7 @@ end
 
 get '/flood' do 
   lat,lon = lat_lon_from_params(params)
-  jsonp(params, {"help" => "none"}) #philly_flood(lat, lon))
+  jsonp(params, philly_flood(lat, lon))
 end
 
 get '/tornados' do
