@@ -86,10 +86,19 @@ def calc_lon_delta(dist_miles)
 end
 
 def gen_gis_where_clause(lat, lon, dist_miles)
-  lat_d = calc_lat_delta(dist_miles)
-  lon_d = calc_lon_delta(dist_miles)
+	puts "----\n"
+lat = lat.to_f
+lon = lon.to_f
+  lat_d = calc_lat_delta(dist_miles).to_f
+  lon_d = calc_lon_delta(dist_miles).to_f
 
-  "lat <= #{lat + lat_d} AND lat >= #{lat - lat_d} AND lon <= #{lon + lon_d} AND lon >= #{lon - lon_d}"
+	puts "'lat: #{lat}'\n"
+	puts "'lon: #{lon}'\n"
+	puts "'lon_d: #{lon_d}\n"
+	puts "'lat_d: #{lat_d}\n"
+
+	puts "---EOM---\n"
+  "lat <= #{(lat + lat_d).to_s} AND lat >= #{(lat - lat_d).to_s} AND lon <= #{(lon + lon_d).to_s} AND lon >= #{(lon - lon_d).to_s}"
 end
 
 def dist?(lat, lon, ll, dist_miles)
@@ -135,6 +144,17 @@ def read_tornado_file(file, lat, lon, dist_miles)
   exec_bounded_query("select * from torn where " + gen_gis_where_clause(lat, lon, dist_miles), lat, lon, ll, dist_miles)
 end
 
+def lat_lon_from_params(params)
+  if (params[:lat] == nil || params[:lon] == nil)
+    address = params[:address]
+    res = MultiGeocoder.geocode(address)
+
+    [res.lat, res.lng]
+  else
+    [params[:lat], params[:lon]]
+  end
+end
+
 get '/geocode' do
   address = params[:address]
   res = MultiGeocoder.geocode(address)
@@ -143,31 +163,23 @@ get '/geocode' do
 end
 
 get '/epa' do
-  address = params[:address]
-  res = MultiGeocoder.geocode(address)
-
-  jsonp(params, epa_locs("STATE_SINGLE_PA.csv", res.lat, res.lng, 0.75))
+  lat,lon = lat_lon_from_params(params)
+  jsonp(params, epa_locs("STATE_SINGLE_PA.csv", lat, lon, 0.75))
 end
 
 get '/flood' do 
-  address = params[:address]
-  res = MultiGeocoder.geocode(address)
-
-  jsonp(params, philly_flood(res.lat, res.lng))
+  lat,lon = lat_lon_from_params(params)
+  jsonp(params, {"help" => "none"}) #philly_flood(lat, lon))
 end
 
 get '/tornados' do
-  address = params[:address]
-  res = MultiGeocoder.geocode(address)
-
-  jsonp(params, read_tornado_file("2010_torn.csv", res.lat, res.lng, 50))
+  lat,lon = lat_lon_from_params(params)
+  jsonp(params, read_tornado_file("2010_torn.csv", lat, lon, 50))
 end
 
 get '/hazards' do
-  address = params[:address]
-  res = MultiGeocoder.geocode(address)
-  
-  jsonp(params, read_nukes("NuclearFacilities.csv", res.lat, res.lng, 50))
+  lat,lon = lat_lon_from_params(params)
+  jsonp(params, read_nukes("NuclearFacilities.csv", lat, lon, 50))
 
 end
 
@@ -175,8 +187,8 @@ hurricanes = JSON.parse(open("hurricanes.json").read)
 puts "==== Loaded " + hurricanes.size.to_s + " hurricanes!"
 
 get '/hurricanes' do
-  address = params[:address]
-  res = MultiGeocoder.geocode(address)
+  lat,lon = lat_lon_from_params(params)
+  res = GeoKit::LatLng.new(lat,lon)
 
   dist_miles = 100
 
@@ -193,8 +205,6 @@ get '/earthquakes/area' do
 end
 
 get '/earthquakes' do
-  address = params[:address]
-  res = MultiGeocoder.geocode(address)
-
-  jsonp(params, quake_file("2008.US.10hz.10pc50.txt", res.lat, res.lng))
+  lat,lon = lat_lon_from_params(params)
+  jsonp(params, quake_file("2008.US.10hz.10pc50.txt", lat, lon))
 end
