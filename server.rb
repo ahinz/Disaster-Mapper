@@ -9,26 +9,49 @@ require 'json'
 
 include Geokit::Geocoders
 require  'sqlite3'
+require File.dirname(__FILE__) + "/gis.rb"
 
 def sql_con()
   @@sql_con ||= SQLite3::Database.new( "devdb.db" )
 end
 
 def philly_flood(lat,lon)
-  factory = RGeo::Cartesian.factory
+  db = sql_con()
 
-  p1 = factory.point(lon, lat)
+  valid_shapes = {}
+  cols = nil
+  db.execute2("select * from flood where #{lat} >= lat_min AND #{lat} <= lat_max AND #{lon} >= lon_min AND #{lon} <= lon_max") do |row|
+    if (cols == nil)
+      cols = row
+    else      
+      id = row[cols.index("id")]
+      shapes = Hash.new
+      db.execute("select * from flood_gis where flood_id = #{id}") do |gis_row|
+        shape = shapes[gis_row[2]]
+        if (shape == nil)
+          shape = []
+          shapes[gis_row[2]] = []
+        end
 
-  RGeo::Shapefile::Reader.open('A-GIS/FloodZones/s_fld_haz_ar_reprojected.shp') do |file|
-    file.each do |record|
-	return record.attributes      
-if (record.geometry.contains?(p1))
-        pts = JSON.parse(record.geometry.as_text.gsub("(","[").gsub(")","]").gsub(/(-\d+\.\d+\s+\d+\.\d+)/, "\"\\1\"")[14..-2])
-        return { "attr" => record.attributes, "geo" => pts } #record.geometry.as_text.gsub("(","[").gsub(")","]").split(",").map { |x| x.split(" ") }[1..-2] }
+        shape << [gis_row[4].to_f,gis_row[3].to_f]
+      end
+
+      shape_geo = shapes.select do |shape_id,points|
+        contains_point?(lon.to_f, lat.to_f, points)
+      end
+
+      if (shape_geo.size > 0)
+        new_shapes = { 
+          "attr" => cols.zip(row).inject(Hash.new){|h,(k,v)| h[k] = v; h},
+          "geo" => shape_geo.map { |k,v| v }
+        }
+        
+        valid_shapes = valid_shapes.merge(new_shapes)
       end
     end
   end
 
+  valid_shapes
 end
 
 def jsonp(params,outp)
@@ -171,7 +194,7 @@ get '/epa' do
   jsonp(params, epa_locs("STATE_SINGLE_PA.csv", lat, lon, 0.75))
 end
 
-get '/flood' do 
+get '/floods' do 
   lat,lon = lat_lon_from_params(params)
   jsonp(params, philly_flood(lat, lon))
 end
