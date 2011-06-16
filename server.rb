@@ -95,7 +95,7 @@ def quake_file(file, lat_tgt, lon_tgt)
     lon = pts[0].to_f
     lat = pts[1].to_f
     
-    return pts[2].to_f if (lat <= lat_tgt && lat + 0.05 >= lat_tgt && lon <= lon_tgt && lon + 0.05 >= lon_tgt)
+    return { "10hz.10pc50" => pts[2].to_f } if (lat <= lat_tgt && lat + 0.05 >= lat_tgt && lon <= lon_tgt && lon + 0.05 >= lon_tgt)
   end
 end
 
@@ -231,7 +231,9 @@ get '/earthquakes/area' do
   jsonp(params, quake_area("2008.US.10hz.10pc50.txt", params[:lat_min].to_f, params[:lon_min].to_f, params[:lat_max].to_f, params[:lon_max].to_f, @@max_quake_value))
 end
 
-get '/earthquakes' do
+get '/earthquake' do
   lat,lon = lat_lon_from_params(params)
-  jsonp(params, quake_file("2008.US.10hz.10pc50.txt", lat, lon))
+	quake = quake_file("2008.US.10hz.10pc50.txt", lat.to_f, lon.to_f)
+require 'pp'; pp quake
+  jsonp(params, quake)
 end
