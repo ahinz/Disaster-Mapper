@@ -90,13 +90,18 @@ def quake_area(file, lat_min, lon_min, lat_max, lon_max,max_quake_value)
 end
 
 def quake_file(file, lat_tgt, lon_tgt)
-  open(file).read.split("\n").map do |ln|
-    pts = ln.strip.split(/\s+/)
-    lon = pts[0].to_f
-    lat = pts[1].to_f
-    
-    return { "10hz.10pc50" => pts[2].to_f } if (lat <= lat_tgt && lat + 0.05 >= lat_tgt && lon <= lon_tgt && lon + 0.05 >= lon_tgt)
-  end
+	lat_tgt = lat_tgt.to_f
+	lon_tgt = lon_tgt.to_f
+	cols = nil
+	data = nil
+	sql_con().execute2("select * from quake where #{lat_tgt} >= lat_min AND #{lat_tgt} <= lat_max AND #{lon_tgt} >= lon_min AND #{lon_tgt} <= lon_max") do |row|
+		if (cols == nil)
+			cols = row
+		else
+			data = cols.zip(row).inject(Hash.new){ |h,(k,v)| h[k] = v; h }
+		end		
+	end
+	data
 end
 
 
