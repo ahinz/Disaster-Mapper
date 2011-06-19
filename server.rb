@@ -63,14 +63,8 @@ def jsonp(params,outp)
   end
 end
 
-def bootstrap_quake_file(file)
-  open(file).read.split("\n").map do |ln|
-    ln.strip.split(/\s+/)[2].to_f
-  end.max
-end
-
-@@max_quake_value = 2.3 #= bootstrap_quake_file("2008.US.10hz.10pc50.txt")
-puts "==== Found max quake value: " + @@max_quake_value.to_s
+#TODO - Dynamically calc this value
+@@max_quake_value = 2.3
 
 def quake_area(file, lat_min, lon_min, lat_max, lon_max,max_quake_value)
   lat_min = lat_min - 0.05
@@ -115,23 +109,12 @@ def calc_lon_delta(dist_miles)
 end
 
 def gen_gis_where_clause(lat, lon, dist_miles)
-	puts "----\n"
-lat = lat.to_f
-lon = lon.to_f
+  lat = lat.to_f
+  lon = lon.to_f
   lat_d = calc_lat_delta(dist_miles).to_f
   lon_d = calc_lon_delta(dist_miles).to_f
 
-	puts "'lat: #{lat}'\n"
-	puts "'lon: #{lon}'\n"
-	puts "'lon_d: #{lon_d}\n"
-	puts "'lat_d: #{lat_d}\n"
-
-	puts "---EOM---\n"
   "lat <= #{(lat + lat_d).to_s} AND lat >= #{(lat - lat_d).to_s} AND lon <= #{(lon + lon_d).to_s} AND lon >= #{(lon - lon_d).to_s}"
-end
-
-def dist?(lat, lon, ll, dist_miles)
-
 end
 
 def exec_bounded_query(stmt, lat, lon, ll, dist_miles)
