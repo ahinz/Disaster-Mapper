@@ -159,8 +159,6 @@ end
 def lat_lon_from_params(params)
   if (params[:lat] == nil || params[:lon] == nil)
 	puts "Failed to find lat/lon"
-	require 'pp'
-	pp params
     address = params[:address]
     res = MultiGeocoder.geocode(address)
 
@@ -221,7 +219,6 @@ end
 
 get '/earthquake' do
   lat,lon = lat_lon_from_params(params)
-	quake = quake_file("2008.US.10hz.10pc50.txt", lat.to_f, lon.to_f)
-require 'pp'; pp quake
+  quake = quake_file("2008.US.10hz.10pc50.txt", lat.to_f, lon.to_f)
   jsonp(params, quake)
 end
